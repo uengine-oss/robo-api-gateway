@@ -16,14 +16,23 @@ spring:
             - RewritePath=/api/gateway/antlr/(?<segment>.*), /antlr/$\{segment}
             - RemoveRequestHeader=Origin
         
-        - id: api-gateway-robo
+        # /robo/* 는 두 서비스로 분기: analyze·pipeline → 분석기(5502), 나머지(schema·graph·lineage 등) → 카탈로그(5503).
+        - id: api-gateway-robo-analyze
           uri: http://robo-analyzer:5502
+          predicates:
+            - Path=/api/gateway/robo/analyze/**,/api/gateway/robo/pipeline/**
+          filters:
+            - RewritePath=/api/gateway/robo/(?<segment>.*), /robo/$\{segment}
+            - RemoveRequestHeader=Origin
+
+        - id: api-gateway-robo-catalog
+          uri: http://robo-data-catalog:5503
           predicates:
             - Path=/api/gateway/robo/**
           filters:
             - RewritePath=/api/gateway/robo/(?<segment>.*), /robo/$\{segment}
             - RemoveRequestHeader=Origin
-        
+
         - id: api-gateway-text2sql
           uri: http://robo-text2sql:8000
           predicates:
@@ -45,10 +54,17 @@ spring:
         - id: robo-analyzer-service
           uri: http://robo-analyzer:5502
           predicates:
+            - Path=/robo/analyze/**,/robo/pipeline/**
+          filters:
+            - RemoveRequestHeader=Origin
+
+        - id: robo-catalog-service
+          uri: http://robo-data-catalog:5503
+          predicates:
             - Path=/robo/**
           filters:
             - RemoveRequestHeader=Origin
-        
+
         - id: text2sql-service
           uri: http://robo-text2sql:8000
           predicates:
