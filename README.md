@@ -26,30 +26,45 @@ Spring Cloud Gateway를 사용한 중앙 API 게이트웨이입니다.
  ┌──────────┐         ┌──────────┐         ┌──────────┐         ┌──────────┐         ┌──────────┐
  │  ANTLR   │         │   ROBO   │         │ Text2SQL │         │   OLAP   │         │Architect │
  │  Parser  │         │ Analyzer │         │          │         │          │         │          │
- │  (8081)  │         │  (5502)  │         │  (8000)  │         │  (8002)  │         │  (8001)  │
+ │  (8081)  │         │  (5502)  │         │  (8000)  │         │  (8007)  │         │  (8001)  │
  └──────────┘         └──────────┘         └──────────┘         └──────────┘         └──────────┘
    Java/Spring          Python/FastAPI      Python/FastAPI      Python/FastAPI      Python/FastAPI
 ```
 
 ## 라우팅 설정
 
-| 경로 패턴 | 대상 서비스 | 포트 | 설명 |
+`application.yml`에 선언된 순서대로 **first-match** 라우팅합니다(위에서부터 먼저 매칭되는 라우트로).
+
+### 직접 경로
+
+| 경로 패턴 | 대상 서비스 | 포트 | 비고 |
 |-----------|-------------|------|------|
-| `/antlr/**` | ANTLR Parser | 8081 | 소스코드 파싱 (Java/Spring Boot) |
-| `/robo/analyze/**`, `/robo/pipeline/**` | ROBO Data Analyzer | 5502 | 코드 분석 (Python/FastAPI) |
-| `/robo/glossary/**`, `/robo/business-calendar/**` | ROBO Data Catalog | 5503 | 데이터 카탈로그 (Python/FastAPI) |
-| `/robo/**` | ROBO Data Glossary | 5504 | 용어 사전 (Python/FastAPI) |
-| `/**` (fallback) | ROBO Data Frontend | 3000 | 프론트엔드 (Vue3/Vite) |
-| `/text2sql/**` | Text2SQL | 8000 | 자연어 → SQL 변환 |
-| `/olap/**` | Data Platform OLAP | 8002 | ETL/OLAP 서비스 |
-| `/architect/**` | ROBO Architect | 8001 | 아키텍처 분석 |
-| `/langchain/**` | LangChain | 8001 | LangChain ReAct 에이전트 |
+| `/antlr/**` | ANTLR Parser | 8081 | |
+| `/robo/analyze/**`, `/robo/pipeline/**` | ROBO Analyzer | 5502 | |
+| `/robo/glossary/**`, `/robo/business-calendar/**` | ROBO Data Catalog | 5503 | |
+| `/robo/**` (catch-all) | ROBO Glossary | 5504 | |
+| `/text2sql/**` | Text2SQL | 8000 | |
+| `/olap/**` | Data Platform OLAP | **8007** | prefix 제거 |
+| `/architect/**` | ROBO Architect | 8001 | prefix 제거 |
+| `/langchain/**` | LangChain | 8001 | prefix 제거 |
+| `/ontology/**`, `/api/ontology/**` | Domain Layer / Ontology | 8002 | |
+| `/risk-calculator/**` | Risk Calculator | 8003 | |
+| `/data-fabric/**` | Data Fabric | 8004 | |
+| `/whatif/**` | What-If Simulator | 8005 | `/whatif/`→`/api/` |
+| `/api/security/**` | Data Secure Guard | 8006 | |
+| `/agent-scheduler/**` | Agent Scheduler | 8089 | |
+| `/node-agent-scheduler/**` | Node Agent Scheduler | 8091 | |
+| `/**` (fallback) | robo-data-frontend | 3000 | 미매치는 프론트로 |
+
+### `/api/gateway/<svc>/**` prefix 라우트군
+
+프론트가 `/api/gateway/` prefix를 붙여 보내면 RewritePath로 prefix를 떼고 위와 **동일 서비스**로 전달합니다(antlr·robo·text2sql·olap·architect·langchain·ontology·domain-whatif·data-fabric·whatif·security·risk-calculator 등).
 
 ## 시작 방법
 
 ### 사전 요구사항
 
-- Java 17 이상
+- Java 8 이상 (Spring Boot 2.7.18 / Spring Cloud 2021.0.9)
 - Maven 3.9 이상 (또는 mvnw 사용)
 
 ### 1. Maven 사용
@@ -85,10 +100,10 @@ curl http://localhost:9000/actuator/gateway/routes
 
 ## CORS 설정
 
-모든 프론트엔드 포트(3000, 5173, 5174, 5175)에서 접근 가능하도록 설정되어 있습니다.
+CORS는 **두 곳**에 정의되어 있습니다:
 
-지원되는 메서드:
-- GET, POST, PUT, DELETE, PATCH, OPTIONS, HEAD
+1. **`application.yml` globalcors** — origin을 **패턴**으로 허용: 모든 `http://localhost:[*]` · `http://127.0.0.1:[*]` 포트 + `https://*.ngrok-free.app`. 메서드 GET/POST/PUT/DELETE/PATCH/OPTIONS (HEAD 없음), allowCredentials.
+2. **`CorsConfig.java`** — 명시 origin 목록(localhost/127.0.0.1 × 3000~3002, 5173~5175)에 **HEAD** 메서드와 `X-Total-Count` 노출 헤더 추가.
 
 ## 프론트엔드 연결
 
