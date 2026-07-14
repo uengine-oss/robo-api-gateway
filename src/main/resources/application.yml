@@ -44,7 +44,7 @@ spring:
         # 프론트엔드에서 /api/gateway/antlr/** 형태로 요청 시 처리
         # ============================================
         - id: api-gateway-antlr
-          uri: http://127.0.0.1:8081
+          uri: ${ROBO_ANTLR_URL:http://127.0.0.1:8081}
           predicates:
             - Path=/api/gateway/antlr/**
           filters:
@@ -157,7 +157,7 @@ spring:
             response-timeout: 600000
         
         - id: api-gateway-data-fabric
-          uri: http://127.0.0.1:8004
+          uri: ${ROBO_DATA_FABRIC_URL:http://127.0.0.1:8004}
           predicates:
             - Path=/api/gateway/data-fabric/**
           filters:
@@ -197,7 +197,7 @@ spring:
         
         # ANTLR Parser Service (Spring Boot) - Port 8081
         - id: antlr-service
-          uri: http://127.0.0.1:8081
+          uri: ${ROBO_ANTLR_URL:http://127.0.0.1:8081}
           predicates:
             - Path=/antlr/**
           filters:
@@ -324,7 +324,7 @@ spring:
         # DataSource management and MindsDB integration
         # ============================================
         - id: data-fabric-service
-          uri: http://127.0.0.1:8004
+          uri: ${ROBO_DATA_FABRIC_URL:http://127.0.0.1:8004}
           predicates:
             - Path=/data-fabric/**
           filters:
