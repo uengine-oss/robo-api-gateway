@@ -89,7 +89,7 @@ spring:
             - RemoveRequestHeader=Origin
         
         - id: api-gateway-architect
-          uri: http://127.0.0.1:8001
+          uri: ${ROBO_ARCHITECT_URL:http://127.0.0.1:8001}
           predicates:
             - Path=/api/gateway/architect/**
           filters:
@@ -97,7 +97,7 @@ spring:
             - RemoveRequestHeader=Origin
         
         - id: api-gateway-langchain
-          uri: http://127.0.0.1:8001
+          uri: ${ROBO_ARCHITECT_URL:http://127.0.0.1:8001}
           predicates:
             - Path=/api/gateway/langchain/**
           filters:
@@ -248,7 +248,7 @@ spring:
         # ROBO Architect Service (FastAPI) - Port 8001
         # ============================================
         - id: architect-service
-          uri: http://127.0.0.1:8001
+          uri: ${ROBO_ARCHITECT_URL:http://127.0.0.1:8001}
           predicates:
             - Path=/architect/**
           filters:
@@ -259,7 +259,7 @@ spring:
         # LangChain Text2SQL Service (FastAPI) - Port 8001
         # ============================================
         - id: langchain-service
-          uri: http://127.0.0.1:8001
+          uri: ${ROBO_ARCHITECT_URL:http://127.0.0.1:8001}
           predicates:
             - Path=/langchain/**
           filters:
