@@ -24,12 +24,21 @@ public class CorsConfig {
             "http://localhost:5173",
             "http://localhost:5174",
             "http://localhost:5175",
+            "http://localhost:15173",
             "http://127.0.0.1:3000",
             "http://127.0.0.1:3001",
             "http://127.0.0.1:3002",
             "http://127.0.0.1:5173",
             "http://127.0.0.1:5174",
-            "http://127.0.0.1:5175"
+            "http://127.0.0.1:5175",
+            "http://127.0.0.1:15173"
+        ));
+        // Workspace/E2E may allocate an isolated local port at runtime. Keep the
+        // explicit compatibility list above, but do not force local tools to
+        // edit this class whenever a safe port changes.
+        corsConfig.setAllowedOriginPatterns(Arrays.asList(
+            "http://localhost:[*]",
+            "http://127.0.0.1:[*]"
         ));
         
         // Allowed Methods

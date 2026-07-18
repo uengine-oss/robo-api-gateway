@@ -57,7 +57,7 @@ spring:
         #   source = 노드 file_path 로 디스크 원본 소스 서빙(코드뷰, 분석기만 소스 디스크 접근)
         #   search = 의미 기반 코드 검색 NDJSON 스트림 (spec 044 /robo/search/semantic)
         - id: api-gateway-robo-analyze
-          uri: http://127.0.0.1:5502
+          uri: ${ROBO_ANALYZER_URL:http://127.0.0.1:5502}
           predicates:
             - Path=/api/gateway/robo/analyze/**,/api/gateway/robo/pipeline/**,/api/gateway/robo/source,/api/gateway/robo/source/**,/api/gateway/robo/search/**
           filters:
@@ -65,7 +65,7 @@ spring:
             - RemoveRequestHeader=Origin
 
         - id: api-gateway-robo-catalog
-          uri: http://127.0.0.1:5503
+          uri: ${ROBO_CATALOG_URL:http://127.0.0.1:5503}
           predicates:
             - Path=/api/gateway/robo/**
           filters:
@@ -205,14 +205,14 @@ spring:
         
         # ROBO Analyzer Service (FastAPI) - Port 5502
         - id: robo-analyzer-service
-          uri: http://127.0.0.1:5502
+          uri: ${ROBO_ANALYZER_URL:http://127.0.0.1:5502}
           predicates:
             - Path=/robo/analyze/**,/robo/pipeline/**
           filters:
             - RemoveRequestHeader=Origin
 
         - id: robo-catalog-service
-          uri: http://127.0.0.1:5503
+          uri: ${ROBO_CATALOG_URL:http://127.0.0.1:5503}
           predicates:
             - Path=/robo/glossary/**,/robo/business-calendar/**
           filters:
