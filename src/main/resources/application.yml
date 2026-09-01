@@ -52,14 +52,13 @@ spring:
             - RemoveRequestHeader=Origin
         
         # /robo/* 는 두 서비스로 나뉜다:
-        #   analyze·pipeline·source·search → 분석기(5502),  나머지(check-data·graph·schema·delete·lineage 등) → 카탈로그(5503)
-        # analyze/pipeline/source/search 를 먼저 매칭(구체적 경로 우선), 나머지는 아래 카탈로그 catch-all 로.
-        #   source = 노드 file_path 로 디스크 원본 소스 서빙(코드뷰, 분석기만 소스 디스크 접근)
+        #   analyze·pipeline·search → 분석기(5502), 나머지(check-data·graph·schema·delete·lineage 등) → 카탈로그(5503)
+        # analyze/pipeline/search 를 먼저 매칭(구체적 경로 우선), 나머지는 아래 카탈로그 catch-all 로.
         #   search = 의미 기반 코드 검색 NDJSON 스트림 (spec 044 /robo/search/semantic)
         - id: api-gateway-robo-analyze
           uri: ${ROBO_ANALYZER_URL:http://127.0.0.1:5502}
           predicates:
-            - Path=/api/gateway/robo/analyze/**,/api/gateway/robo/pipeline/**,/api/gateway/robo/source,/api/gateway/robo/source/**,/api/gateway/robo/search/**
+            - Path=/api/gateway/robo/analyze/**,/api/gateway/robo/pipeline/**,/api/gateway/robo/search/**
           filters:
             - RewritePath=/api/gateway/robo/(?<segment>.*), /robo/$\{segment}
             - RemoveRequestHeader=Origin
